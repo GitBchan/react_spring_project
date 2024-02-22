@@ -3,6 +3,9 @@ import { API_SERVER_HOST } from "../../api/todoApi"
 import { getOne } from "../../api/productsApi"
 import useCustomMove from "../../hooks/useCustomMove"
 import FetchingModal from "../common/FetchingModal"
+import useCustomCart from "../../hooks/useCustomCart";
+import useCustomLogin from "../../hooks/useCustomLogin";
+import {useQuery} from "@tanstack/react-query";
 
 const initState = {
     pno:0,
@@ -15,24 +18,40 @@ const initState = {
 const host = API_SERVER_HOST
 
 const ReadComponent = ({pno}) => {
-    const [product, setProduct] = useState(initState)
 
     const {moveToList, moveToModify} = useCustomMove()
 
-    const [fetching, setFetching] = useState(false)
+    const {loginState} = useCustomLogin()
 
-    useEffect(() => {
-        setFetching(true)
+    const {cartItems, changeCart} = useCustomCart()
 
-        getOne(pno).then(data => {
-            setProduct(data)
-            setFetching(false)
-        })
-    }, [pno])
+    const {isFetching, data} = useQuery({
+        queryKey: ['products',pno],
+        queryFn: () => getOne(pno),
+        staleTime: 1000 * 10
+    })
+
+    const handleCLickAddCart = () => {
+        let qty = 1
+
+        const addedItem = cartItems.filter(item => item.pno === parseInt(pno))[0]
+
+        if (addedItem) {
+            if (window.confirm("이미 추가된 상품입니다. 추가하시겠습니까? ") === false) {
+                return
+            }
+            qty =  addedItem.qty + 1
+        }
+
+        changeCart({email: loginState.email, pno:pno, qty:qty})
+
+    }
+
+    const product = data || initState
 
     return (
         <div className="border-2 border-sky-200 mt-10 m-2 p-4">
-            {fetching ? <FetchingModal/> : <></>}
+            {isFetching ? <FetchingModal/> : <></>}
 
             <div className="flex justify-center mt-10">
                 <div className="relative mb-4 flex w-full flex-wrap items-stretch">
@@ -77,6 +96,7 @@ const ReadComponent = ({pno}) => {
             </div>
 
             <div className="flex justify-end p-4">
+                <button type='button' className='inline-block rounded p-4 m-2 text-xl w-32 text-white bg-green-500' onClick={handleCLickAddCart}>Add Cart</button>
                 <button type="button" className="inline-block rounded p-4 m-2 text-xl w-32 text-white bg-red-500" onClick={() => moveToModify(pno)}>
                     Modify
                 </button>

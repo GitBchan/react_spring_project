@@ -5,9 +5,9 @@ import axios from "axios";
 const host = `${API_SERVER_HOST}/api/products`
 
 export const postAdd = async (product) => {
-    const header = {header: {"Content-Type" : "multipart/form-data"}}
+    const header = {headers: {"Content-Type" : "multipart/form-data"}}
 
-    const res = await axios.post(`${host}/`, product, header)
+    const res = await jwtAxios.post(`${host}/`, product, header)
 
     return res.data
 }
@@ -27,15 +27,15 @@ export const getOne = async (tno) => {
 }
 
 export const putOne = async (pno, product) => {
-    const header = {header: {"Content-Type" : "multipart/form-data"}}
+    const header = {headers: {"Content-Type" : "multipart/form-data"}}
 
-    const res = await axios.put(`${host}/${pno}`, product, header)
+    const res = await jwtAxios.put(`${host}/${pno}`, product, header)
 
     return res.data
 }
 
 export const deleteOne = async (pno) => {
-    const res = await axios.delete(`${host}/${pno}`)
+    const res = await jwtAxios.delete(`${host}/${pno}`)
     
     return res.data
 }

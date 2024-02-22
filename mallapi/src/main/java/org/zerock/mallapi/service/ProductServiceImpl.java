@@ -79,8 +79,8 @@ public class ProductServiceImpl implements ProductService{
         Product product = productRepository.findById(productDTO.getPno()).orElseThrow();
 
         product.changeName(productDTO.getPname());
-        product.changeDesc(product.getPdesc());
-        product.changePrice(product.getPrice());
+        product.changeDesc(productDTO.getPdesc());
+        product.changePrice(productDTO.getPrice());
 
         product.clearList();
 

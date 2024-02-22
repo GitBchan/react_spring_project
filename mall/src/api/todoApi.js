@@ -21,19 +21,19 @@ export const getList = async (pageParam) => {
 }
 
 export const postAdd = async (todoObj) => {
-    const res = await axios.post(`${prefix}/`, todoObj)
+    const res = await jwtAxios.post(`${prefix}/`, todoObj)
 
     return res.data
 }
 
 export const deleteOne = async (tno) => {
-    const res = await axios.delete(`${prefix}/${tno}`)
+    const res = await jwtAxios.delete(`${prefix}/${tno}`)
 
     return res.data
 }
 
 export const putOne = async (todo) => {
-    const res = await axios.put(`${prefix}/${todo.tno}`, todo)
+    const res = await jwtAxios.put(`${prefix}/${todo.tno}`, todo)
 
     return res.data
 }

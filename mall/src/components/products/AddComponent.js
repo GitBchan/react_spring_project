@@ -3,6 +3,7 @@ import { postAdd } from "../../api/productsApi";
 import FetchingModal from "../common/FetchingModal";
 import ResultModal from "../common/ResultModal";
 import useCustomMove from "../../hooks/useCustomMove";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 
 const initState = {
     pname: '',
@@ -17,16 +18,16 @@ const AddComponent = () => {
 
     const uploadRef = useRef()
 
-    const [fetching, setFetching] = useState(false)
-
-    const [result, setResult] = useState(null)
-
     const {moveToList} = useCustomMove()
 
     const handleChangeProduct = (e) => {
         product[e.target.name] = e.target.value
         setProduct({...product})
     }
+
+    const addMutation = useMutation({
+        mutationFn: (product) => postAdd(product)
+    })
 
     const handleClickAdd = (e) => {
         const files = uploadRef.current.files
@@ -43,23 +44,23 @@ const AddComponent = () => {
 
         console.log(formData)
 
-        setFetching(true)
-
-        postAdd(formData).then(data => {
-            setFetching(false)
-            setResult(data.RESULT)
-        })
+        addMutation.mutate( formData )
     }
 
+    const queryClient = useQueryClient()
+
     const closeModal = () => {
-        setResult(null)
+        queryClient.invalidateQueries("products/list")
         moveToList({page:1})
     }
 
     return (
         <div className="border-2 border-sky-200 mt-10 m-2 p-4">
-            {fetching ? <FetchingModal/> : <></>}
-            {result ? <ResultModal title={'Product Add Result'} content={`${result}번 등록 완료`} callbackFn={closeModal}/> : <></>}
+            {addMutation.isPending ?
+                <FetchingModal/> : <></>}
+
+            {addMutation.isSuccess ?
+                <ResultModal title={'Product Add Result'} content={`Add Success ${addMutation.data.RESULT}`} callbackFn={closeModal}/> : <></> }
 
             <div className="flex justify-center">
                 <div className="relative mb-4 flex w-full flex-wrap items-stretch">
